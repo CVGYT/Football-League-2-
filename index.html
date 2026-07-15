@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Storm Football League</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Mobile top bar -->
+  <div class="mobile-bar">
+    <button class="hamburger" id="hamburgerBtn" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+    <img class="mobile-logo" src="assets/storm-gym-logo.png" alt="Storm Gym logo">
+    <span class="mobile-title" id="mobileTitle">Storm Football League</span>
+  </div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <img class="brand-logo" src="assets/storm-gym-logo.png" alt="Storm Gym logo">
+      <div class="brand-title" id="leagueName">Storm Football League</div>
+    </div>
+
+    <nav class="side-nav">
+      <button class="nav-item active" data-view="dashboard">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        <span>Dashboard</span>
+      </button>
+      <button class="nav-item" data-view="teams">
+        <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20c0-3.5 2.5-6 5.5-6s5.5 2.5 5.5 6"/><circle cx="17.5" cy="8.5" r="2.4"/><path d="M15.5 14.2c2.5.2 4.5 2.4 4.5 5.8"/></svg>
+        <span>Teams</span>
+        <span class="count-badge" id="navTeamCount">0</span>
+      </button>
+      <button class="nav-item" data-view="fixtures" id="navFixturesBtn" disabled>
+        <svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9.5h18M8 3v3M16 3v3"/></svg>
+        <span>Fixtures</span>
+      </button>
+      <button class="nav-item" data-view="table" id="navTableBtn" disabled>
+        <svg viewBox="0 0 24 24"><path d="M4 21V11M12 21V4M20 21v-7"/></svg>
+        <span>Table</span>
+      </button>
+      <button class="nav-item" data-view="playoffs" id="navPlayoffsBtn" disabled>
+        <svg viewBox="0 0 24 24"><path d="M6 3h12v4a6 6 0 0 1-6 6 6 6 0 0 1-6-6V3z"/><path d="M6 5H3v1a4 4 0 0 0 4 4M18 5h3v1a4 4 0 0 0-4 4"/><path d="M12 13v4M9 21h6M10 17h4v4h-4z"/></svg>
+        <span>Playoffs</span>
+      </button>
+    </nav>
+
+    <div class="side-footer">
+      <button class="side-btn" id="exportBtn">
+        <svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>
+        Export
+      </button>
+      <label class="side-btn" for="importFile">
+        <svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 19h16"/></svg>
+        Import
+      </label>
+      <input type="file" id="importFile" accept="application/json" hidden>
+      <button class="side-btn danger" id="resetBtn">
+        <svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
+        Reset
+      </button>
+    </div>
+  </aside>
+
+  <div class="scrim" id="scrim"></div>
+
+  <!-- Main content -->
+  <main class="content">
+
+    <header class="topbar">
+      <div class="stat-chips">
+        <div class="chip">Teams <b id="chipTeams">0</b></div>
+        <div class="chip">Played <b id="chipPlayed">0</b></div>
+        <div class="chip">Matches <b id="chipTotal">0</b></div>
+        <div class="chip save-chip">💾 Saved on this device</div>
+      </div>
+    </header>
+
+    <!-- DASHBOARD -->
+    <section class="view active" id="view-dashboard">
+      <div class="view-head">
+        <h1>Dashboard</h1>
+        <p>A quick look at where your league stands.</p>
+      </div>
+
+      <div id="dashEmpty" class="empty-card">
+        <div class="empty-icon">⚡</div>
+        <h3>Let's set up your league</h3>
+        <p>Add at least two teams, then generate the fixture list to get started.</p>
+        <button class="primary" id="dashGoTeams">Go to Teams</button>
+      </div>
+
+      <div id="dashContent" class="dash-grid" style="display:none;">
+        <div class="card leader-card">
+          <div class="card-label">Leading team</div>
+          <div class="leader-name" id="leaderName">—</div>
+          <div class="leader-stats" id="leaderStats"></div>
+        </div>
+        <div class="card">
+          <div class="card-label">Top of the table</div>
+          <div id="dashMiniTable"></div>
+        </div>
+        <div class="card">
+          <div class="card-label">Next up</div>
+          <div id="dashNextFixtures"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEAMS -->
+    <section class="view" id="view-teams">
+      <div class="view-head">
+        <h1>Teams</h1>
+        <p>Add every team in your league — there's no limit.</p>
+      </div>
+
+      <div class="card">
+        <div class="team-input-row">
+          <input type="text" id="teamInput" placeholder="Type a team name and press Add…" maxlength="40">
+          <button class="primary" id="addTeamBtn">Add team</button>
+        </div>
+        <div class="team-list" id="teamList"></div>
+        <div class="empty-note" id="teamEmptyNote">No teams yet — add at least two to generate fixtures.</div>
+      </div>
+
+      <div class="card">
+        <label class="toggle-row">
+          <input type="checkbox" id="doubleRoundToggle">
+          <span>Home &amp; away — everyone plays everyone <b>twice</b></span>
+        </label>
+        <div class="actions-row">
+          <button class="primary big" id="generateBtn" disabled>Generate fixtures</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- FIXTURES -->
+    <section class="view" id="view-fixtures">
+      <div class="view-head">
+        <h1>Fixtures</h1>
+        <p>Enter each match's score. Open "Cards" to log yellow and red cards.</p>
+      </div>
+      <div id="fixturesContainer"></div>
+    </section>
+
+    <!-- TABLE -->
+    <section class="view" id="view-table">
+      <div class="view-head">
+        <h1>League table</h1>
+        <p>Updates automatically as results come in.</p>
+      </div>
+      <div class="card">
+        <div class="table-scroll desktop-table">
+          <table class="standings">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th class="team-col">Team</th>
+                <th>P</th><th>W</th><th>D</th><th>L</th>
+                <th>GF</th><th>GA</th><th>GD</th>
+                <th>Pts</th>
+                <th>Cards</th>
+              </tr>
+            </thead>
+            <tbody id="standingsBody"></tbody>
+          </table>
+        </div>
+        <div class="standings-mobile" id="standingsMobile"></div>
+        <details class="legend">
+          <summary>How ties are broken</summary>
+          <ol>
+            <li><b>Points</b> — win 3, draw 1, loss 0.</li>
+            <li><b>Goal difference</b> — goals for minus goals against, highest first.</li>
+            <li><b>Goals scored</b> — most goals for, highest first.</li>
+            <li><b>Head-to-head</b> — a mini-table using only matches between the tied teams.</li>
+            <li><b>Discipline</b> — fewest red cards first, then fewest yellow cards.</li>
+          </ol>
+        </details>
+      </div>
+    </section>
+
+    <!-- PLAYOFFS -->
+    <section class="view" id="view-playoffs">
+      <div class="view-head">
+        <h1>Playoffs</h1>
+        <p>The top 4 from the table go into a knockout. Everyone else is eliminated.</p>
+      </div>
+
+      <div id="playoffsEmpty" class="empty-card">
+        <div class="empty-icon">🏆</div>
+        <h3>Need at least 4 teams</h3>
+        <p>Add more teams and play some fixtures — the top 4 in the table will seed the playoff bracket.</p>
+      </div>
+
+      <div id="playoffsContent" style="display:none;">
+        <div class="card playoff-controls">
+          <button class="primary" id="generatePlayoffsBtn">Generate playoffs from current table</button>
+          <button class="side-btn danger" id="resetPlayoffsBtn" style="display:none;">Clear bracket</button>
+        </div>
+
+        <div class="bracket" id="bracketContainer"></div>
+
+        <div class="card" id="missedPlayoffsCard" style="display:none;">
+          <div class="card-label">Missed the playoffs</div>
+          <div id="missedPlayoffsList"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
